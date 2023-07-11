@@ -11,17 +11,17 @@ knitr::include_graphics("pictures/Golem_and_Loew.jpg")
 # https://en.wikipedia.org/wiki/Golem#/media/File:Golem_and_Loew.jpg
 ```
 
-As he opened the chapter, McElreath told us that
+McElreath 在本章开篇时告诉我们
 
-> ultimately Judah was forced to destroy the golem, as its combination of extraordinary power with clumsiness eventually led to innocent deaths. Wiping away one letter from the inscription *emet* to spell instead *met*, "death," Rabbi Judah decommissioned the robot.
+>最终，犹大被迫摧毁了这个机械人，因为它将非凡的力量与笨拙的动作结合在一起，最终导致了无辜的死亡。犹大拉比将机器人的铭文*emet*中的一个字母擦去，改写成*met*，即 "死亡"。
 >
-> ## Statistical golems
+> ## 统计傀儡
 >
-> Scientists also make golems. Our golems rarely have physical form, but they too are often made of clay, living in silicon as computer code. These golems are scientific models. But these golems have real effects on the world, through the predictions they make and the intuitions they challenge or inspire. A concern with "truth" enlivens these models, but just like a golem or a modern robot, scientific models are neither true nor false, neither prophets nor charlatans. Rather they are constructs engineered for some purpose. These constructs are incredibly powerful, dutifully conducting their programmed calculations. [@mcelreathStatisticalRethinkingBayesian2020, p. 1, *emphasis* in the original]
+> 科学家也制造傀儡。我们的 "傀儡 "很少有实体，但它们通常也是由粘土制成，像计算机代码一样存在于硅片中。这些傀儡是科学模型。但这些傀儡通过它们所做的预测和它们所挑战或启发的直觉，对世界产生了真正的影响。对 "真理 "的关注为这些模型注入了活力，但正如傀儡或现代机器人一样，科学模型既非真也非假，既非先知也非骗子。相反，它们是为某种目的而设计的构造物。这些构造物强大得令人难以置信，它们尽职尽责地进行着程序化的计算。 [@mcelreathStatisticalRethinkingBayesian2020, p. 1, *emphasis* in the original]
 
-There are a lot of great points, themes, methods, and factoids in this text. For me, one of the most powerful themes interlaced throughout the pages is how we should be skeptical of our models. Yes, learn Bayes. Pore over this book. Fit models until late into the night. But please don't fall into blind love with their elegance and power. If we all knew what we were doing, there'd be no need for science. For more wise deflation along these lines, do check out [*A personal essay on Bayes factors*](https://psyarxiv.com/nujy6), [*Between the devil and the deep blue sea: Tensions between scientific judgement and statistical model selection*](https://doi.org/10.1007/s42113-018-0019-z) [@navarroDevilDeepBlue2019] and [*Science, statistics and the problem of "pretty good inference"*](https://youtu.be/tNkmsAOn7aU), a blog, paper and talk by the inimitable [Danielle Navarro](https://djnavarro.net/).
+这篇文章有很多精彩的观点、主题、方法和事实。对我来说，其中最有力的主题之一是我们应该如何对我们的模型持怀疑态度。是的，学习贝叶斯。仔细阅读这本书。修正模型直到深夜。但请不要盲目迷恋模型的优雅和强大。如果我们都知道自己在做什么，就不需要科学了。如果您想了解更多关于这些方面的信息，请查阅 [*A personal essay on Bayes factors*](https://psyarxiv.com/nujy6), [*Between the devil and the deep blue sea: Tensions between scientific judgement and statistical model selection*](https://doi.org/10.1007/s42113-018-0019-z) [@navarroDevilDeepBlue2019] and [*Science, statistics and the problem of "pretty good inference"*](https://youtu.be/tNkmsAOn7aU), a blog, paper and talk by the inimitable [Danielle Navarro](https://djnavarro.net/).
 
-Anyway, McElreath left us no code or figures to translate in this chapter. But before you skip off to the next one, why not invest a little time soaking in this chapter's material by way of a lecture by McElreath, himself? He's an engaging speaker and the material in his online lectures does not entirely overlap with that in the text. Here's the first lecture from his Winter 2019 course:
+总之，McElreath在本章中没有给我们留下任何需要翻译的代码或数字。但是，在您跳转到下一章之前，为什么不花点时间听一听McElreath本人的讲座呢？他是一位引人入胜的演讲者，他的在线讲座中的内容与课文中的内容并不完全重合。以下是他2019年冬季课程的第一讲：
 
 ```{r, echo = F, message = F}
 # library(magrittr)
