@@ -5,37 +5,37 @@ knitr::opts_chunk$set(fig.align = "center")
 options(width = 100)
 ```
 
-# Small Worlds and Large Worlds
+# 小世界与大世界
 
-A while back The Oatmeal put together an [infographic on Christopher Columbus](http://theoatmeal.com/comics/columbus_day). I'm no historian and cannot vouch for its accuracy, so make of it what you will.
+不久前，The Oatmeal制作了一张[关于克里斯托弗-哥伦布的信息图表](http://theoatmeal.com/comics/columbus_day)。我不是历史学家，不能保证它的准确性，所以请自行决定。
 
-McElreath described the thrust of this chapter this way:
+McElreath这样描述本章的主旨：
 
-> In this chapter, you will begin to build Bayesian models. The way that Bayesian models learn from evidence is arguably optimal in the small world. When their assumptions approximate reality, they also perform well in the large world. But large world performance has to be demonstrated rather than logically deduced. [@mcelreathStatisticalRethinkingBayesian2020, p. 20]
+> 在本章中，您将开始建立贝叶斯模型。贝叶斯模型从证据中学习的方法可以说是小世界中的最佳方法。当它们的假设逼近现实时，它们在大世界中的表现也很好。但是，大世界的表现必须通过证明而不是逻辑推导来实现。[@mcelreathStatisticalRethinkingBayesian2020, p. 20]
 
-Indeed.
+确实如此。
 
-## The garden of forking data
+## 分叉数据花园
 
-Gelman and Loken [-@gelmanGardenForkingPaths2013] wrote a [great paper of a similar name](https://stat.columbia.edu/~gelman/research/unpublished/p_hacking.pdf) and topic. The titles from this section and Gelman and Loken's paper have their origins in the short story by [Jorge Luis Borges](https://en.wikipedia.org/wiki/Jorge_Luis_Borges) [-@borgesjlJardinSenderosQue1941], *The garden of forking paths*. You can find copies of the original short story [here](https://archive.org/stream/TheGardenOfForkingPathsJorgeLuisBorges1941/The-Garden-of-Forking-Paths-Jorge-Luis-Borges-1941_djvu.txt) or [here](https://genius.com/Jorge-luis-borges-the-garden-of-forking-paths-annotated). Here's a snip:
+Gelman和Loken[-@gelmanGardenForkingPaths2013]写了一篇[名字相似的伟大论文](https://stat.columbia.edu/~gelman/research/unpublished/p_hacking.pdf)和题目。本节以及Gelman和Loken的论文中的标题起源于[Jorge Luis Borges](https://en.wikipedia.org/wiki/Jorge_Luis_Borges)的短篇小说[-@borgesjlJardinSenderosQue1941]，*岔路花园*。您可以在[这里](https://archive.org/stream/TheGardenOfForkingPathsJorgeLuisBorges1941/The-Garden-of-Forking-Paths-Jorge-Luis-Borges-1941_djvu.txt)或[这里](https://genius.com/Jorge-luis-borges-the-garden-of-forking-paths-annotated)找到短篇小说原文。这里有一个片段：
 
-> In all fictional works, each time a man is confronted with several alternatives, he chooses one and eliminates the others; in the fiction of Ts'ui Pên, he chooses--simultaneously--all of them. He creates, in this way, diverse futures, diverse times which themselves also proliferate and fork.
+> 在所有的虚构作品中，每当一个人面对几种选择时，他会选择其中的一种而放弃其他的选择；而在Ts'ui Pên的小说中，他会同时选择所有的选择。通过这种方式，他创造了多种多样的未来，多种多样的时代，而这些时代本身也在增殖和分叉。
 
-The choices we make in our data analyses proliferate and fork in this way, too.
+我们在数据分析中所做的选择也是以这种方式增殖和分叉的。
 
-### Counting possibilities.
+### 计算可能性。
 
-Throughout this project, we'll make extensive use packages from the [**tidyverse**](https://www.tidyverse.org) for data wrangling and plotting.
+在整个项目中，我们将广泛使用[**tidyverse**](https://www.tidyverse.org)中的软件包进行数据处理和绘图。
 
 ```{r, warning = F, message = F}
 library(tidyverse)
 ```
 
-If you are new to **tidyverse**-style syntax, possibly the oddest component is the pipe (i.e., `%>%`). I'm not going to explain the `%>%` in this project, but you might learn more about in [this brief clip](https://youtu.be/9yjhxvu-pDg), starting around [minute 21:25 in this talk by Wickham](https://youtu.be/K-ss_ag2k9E?t=1285), or in [Section 5.6.1](https://r4ds.had.co.nz/transform.html#combining-multiple-operations-with-the-pipe) from Grolemund and Wickham's [-@grolemundDataScience2017] *R for data science*. Really, all of Chapter 5 of *R4DS* is just great for new **R** and new **tidyverse** users. And *R4DS* Chapter 3 is a nice introduction to plotting with **ggplot2** [@R-ggplot2; @wickhamGgplot2ElegantGraphics2016].
+如果你是**tidyverse**风格语法的新手，最奇怪的组件可能是管道（即`%>%`）。我不会在这个项目中解释`%>%`，但你可以在[这个简短的片段](https://youtu.be/9yjhxvu-pDg)中了解更多，从[Wickham演讲的第21:25分钟](https://youtu.be/K-ss_ag2k9E?t=1285)左右开始，或者在Grolemund和Wickham的[-@grolemundDataScience2017]*R for data science*中的[5.6.1节](https://r4ds.had.co.nz/transform.html#combining-multiple-operations-with-the-pipe)中了解更多。实际上，*R4DS*第5章的所有内容对于新的**R**和新的**tidyverse**用户来说都非常棒。而**R4DS*第3章则很好地介绍了如何使用**ggplot2**绘图[@R-ggplot2；@wickhamGgplot2ElegantGraphics2016]。
 
-Other than the pipe, the other big thing to be aware of is [tibbles](https://tibble.tidyverse.org) [@R-tibble]. For our purposes, think of a tibble as a data object with two dimensions defined by rows and columns. Importantly, tibbles are just special types of [data frames](https://bookdown.org/rdpeng/rprogdatascience/r-nuts-and-bolts.html#data-frames). So, whenever we talk about data frames, we're usually talking about tibbles. For more on the topic, check out [*R4SD*, Chapter 10](https://r4ds.had.co.nz/tibbles.html).
+除了管道之外，另一个需要注意的重要东西是[tibbles](https://tibble.tidyverse.org) [@R-tibble]。就我们的目的而言，将tibble视为具有两个维度（由行和列定义）的数据对象。重要的是，tibble只是[数据帧](https://bookdown.org/rdpeng/rprogdatascience/r-nuts-and-bolts.html#data-frames)的特殊类型。因此，每当我们谈论数据帧时，我们通常都在谈论tibbles。有关该主题的更多信息，请参阅[*R4SD*，第10章](https://r4ds.had.co.nz/tibbles.html)。
 
-If we're willing to code the marbles as 0 = "white" 1 = "blue", we can arrange the possibility data in a tibble as follows.
+如果我们愿意将弹珠编码为0="白色" 1="蓝色"，那么我们可以将可能性数据安排在如下的tibble中。
 
 ```{r, warning = F, message = F}
 d <-
@@ -48,7 +48,7 @@ d <-
 head(d)
 ```
 
-You might depict the possibility data in a plot.
+您可以在图表中描述可能性数据。
 
 ```{r, fig.width = 1.25, fig.height = 1.1}
 d %>% 
@@ -64,9 +64,9 @@ d %>%
   theme(legend.position = "none")
 ```
 
-As a quick aside, check out Suzan Baert's blog post [*Data wrangling part 2: Transforming your columns into the right shape*](https://suzan.rbind.io/2018/02/dplyr-tutorial-2/) for an extensive discussion on `dplyr::mutate()` and `tidyr::gather()`. The `tidyr::pivot_longer()` function is an updated variant of `gather()`, which we'll be making extensive use of throughout this project. If you're new to reshaping data with pivoting, check out the vignettes [here](https://tidyr.tidyverse.org/reference/pivot_longer.html) and [here](https://tidyr.tidyverse.org/articles/pivot.html) [@PivotDataWide2020; @Pivoting2020].
+顺便提一下，查看Suzan Baert的博文[*数据处理第二部分：将列转换成正确的形状*](https://suzan.rbind.io/2018/02/dplyr-tutorial-2/)，其中对`dplyr::mutate()`和`tidyr::gather()`进行了广泛的讨论。`tidyr::pivot_longer()` 函数是 `gather()` 的更新变体，我们将在整个项目中广泛使用。如果您是使用透视重塑数据的新手，请查看小节 [此处](https://tidyr.tidyverse.org/reference/pivot_longer.html) 和 [此处](https://tidyr.tidyverse.org/articles/pivot.html) [@PivotDataWide2020; @Pivoting2020]。
 
-Here's the basic structure of the possibilities per marble draw.
+以下是每次抽取弹珠的基本结构。
 
 ```{r, warning = F, message = F}
 library(flextable)
@@ -77,9 +77,9 @@ tibble(draw    = 1:3,
   flextable()
 ```
 
-Note our use of the **flextable** package [@R-flextable; @gohelUsingFlextable2023] to format the output into a nice table. We'll get more practice with this throughout this chapter.
+注意我们使用了**flextable**包[@R-flextable; @gohelUsingFlextable2023] 将输出格式化为漂亮的表格。我们将在本章中对此进行更多练习。
 
-If you walk that out a little, you can structure the data required to approach Figure 2.2.
+如果您稍加练习，就可以构建出接近图 2.2 所需的数据结构。
 
 ```{r}
 (
@@ -93,9 +93,9 @@ If you walk that out a little, you can structure the data required to approach F
 )
 ```
 
-See what I did there with the parentheses? If you assign a value to an object in **R** (e.g., `dog <- 1`) and just hit return, nothing will immediately pop up in the [console](https://r4ds.had.co.nz/introduction.html#rstudio). You have to actually execute `dog` before **R** will return `1`. But if you wrap the code within parentheses (e.g., `(dog <- 1)`), **R** will perform the assignment and return the value as if you had executed `dog`.
+看到我的括号了吗？如果您在**R**中给一个对象赋值（例如，`dog <- 1`），然后点击return，[console](https://r4ds.had.co.nz/introduction.html#rstudio)中不会立即弹出任何内容。您必须实际执行`dog`，**R**才会返回`1`。但是，如果您将代码包在括号中（例如，`(dog <- 1)`），**R**将执行赋值并返回值，就像您执行了`dog`一样。
 
-But we digress. Here's the initial plot.
+但我们离题了。下面是第一个图。
 
 ```{r, fig.width = 8, fig.height = 2}
 d %>% 
@@ -107,7 +107,7 @@ d %>%
         panel.grid.minor = element_blank())
 ```
 
-To my mind, the easiest way to connect the dots in the appropriate way is to make two auxiliary tibbles.
+在我看来，以适当的方式连接点的最简单方法是制作两个辅助tibbles。
 
 ```{r}
 # these will connect the dots from the first and second draws
@@ -129,7 +129,7 @@ To my mind, the easiest way to connect the dots in the appropriate way is to mak
   )
 ```
 
-We can use the `lines_1` and `lines_2` data in the plot with two `geom_segment()` functions.
+我们可以用两个`geom_segment()`函数在绘图中使用`lines_1`和`lines_2`数据。
 
 ```{r, fig.width = 8, fig.height = 2}
 d %>% 
@@ -150,7 +150,7 @@ d %>%
         panel.grid.minor = element_blank())
 ```
 
-We've generated the values for `position` (i.e., the $x$-axis), in such a way that they're all justified to the right, so to speak. But we'd like to center them. For `draw == 1`, we'll need to subtract 0.5 from each. For `draw == 2`, we need to reduce the scale by a factor of 4 and we'll then need to reduce the scale by another factor of 4 for `draw == 3`. The `ifelse()` function will be of use for that.
+我们已经生成了 `位置`（即$x$轴）的值，可以说它们都向右对齐。但是我们希望将它们居中。对于 `draw ==1`，我们需要从每个中减去0.5。对于 `draw == 2`，我们需要将缩放4倍比例，对于 `draw == 3`，我们需要将缩放比例再减去4。`ifelse()` 函数将用于此。
 
 ```{r}
 d <-
@@ -202,7 +202,7 @@ d %>%
         panel.grid.minor = element_blank())
 ```
 
-For the final step, we'll use `coord_polar()` to change the [coordinate system](http://sape.inf.usi.ch/quick-reference/ggplot2/coord), giving the plot a mandala-like feel.
+最后一步，我们将使用`coord_polar()`来改变[坐标系](http://sape.inf.usi.ch/quick-reference/ggplot2/coord)，使绘图具有曼陀罗的感觉。
 
 ```{r, fig.width = 4, fig.height = 4}
 d %>% 
@@ -225,7 +225,7 @@ d %>%
         panel.grid = element_blank())
 ```
 
-To make our version of Figure 2.3, we'll have to add an index to tell us which paths remain logically valid after each choice. We'll call the index `remain`.
+为了制作图2.3的版本，我们必须添加一个索引来告诉我们在每次选择之后哪些路径在逻辑上仍然有效。我们将这个索引称为 `remain`。
 
 ```{r, fig.width = 4, fig.height = 4}
 lines_1 <-
@@ -269,7 +269,7 @@ d %>%
         panel.grid = element_blank())
 ```
 
-Letting "w" = a white dot and "b" = a blue dot, we might recreate the table in the middle of page 23 like so.
+让 "w"=一个白点，"b"=一个蓝点，我们可以在第23页的中间重新创建这样的表格。
 
 ```{r}
 # if we make two custom functions, here, 
@@ -330,7 +330,7 @@ d <-
 )
 ```
 
-Both `lines_1` and `lines_2` require adjustments for `x` and `xend`. Our current approach is a nested `ifelse()`. Rather than copy and paste that multi-line `ifelse()` code for all four, let's wrap it in a compact function, which we'll call `move_over()`.
+`lines_1` 和 `lines_2` 都需要调整 `x` 和 `xend`。我们目前的方法是嵌套`ifelse()`。与其将多行的 `ifelse()` 代码复制粘贴到所有四行中，不如将其封装到一个紧凑的函数中，我们称之为`move_over()`。
 
 ```{r}
 move_over <- function(position, index) {
@@ -343,9 +343,9 @@ move_over <- function(position, index) {
 }
 ```
 
-If you're new to making your own **R** functions, check out [Chapter 19](https://r4ds.had.co.nz/functions.html) of *R4DS* or [Chapter 14](https://bookdown.org/rdpeng/rprogdatascience/functions.html) of *R programming for data science* [@pengProgrammingDataScience2022].
+如果你是第一次自己制作**R**函数，可以参考*R4DS*的[Chapter 19](https://r4ds.had.co.nz/functions.html)或者*R programming for data science*的[Chapter 14](https://bookdown.org/rdpeng/rprogdatascience/functions.html)[@pengProgrammingDataScience2022]。
 
-Anyway, now we'll make our new `lines_1` and `lines_2` data, for which we'll use `move_over()` to adjust their `x` and `xend` positions to the correct spots.
+总之，现在我们将创建新的`lines_1`和`lines_2`数据，我们将使用`move_over()`将它们的`x`和`xend`位置调整到正确的位置。
 
 ```{r}
 (
@@ -379,7 +379,7 @@ Anyway, now we'll make our new `lines_1` and `lines_2` data, for which we'll use
 )
 ```
 
-For the last data wrangling step, we add the `remain` indices to help us determine which parts to make semitransparent. I'm not sure of a slick way to do this, so these are the result of brute force counting.
+在最后的数据处理步骤中，我们添加 `remain` 索引来帮助我们确定哪些部分需要半透明。我不知道有什么巧妙的方法可以做到这一点，所以这些都是蛮力计算的结果。
 
 ```{r}
 d <- 
@@ -458,11 +458,11 @@ d %>%
         panel.grid = element_blank())
 ```
 
-### Combining other information.
+#### 结合其他信息。
 
-> We may have additional information about the relative plausibility of each conjecture. This information could arise from knowledge of how the contents of the bag were generated. It could also arise from previous data. Whatever the source, it would help to have a way to combine different sources of information to update the plausibilities. Luckily there is a natural solution: Just multiply the counts. (p. 25)
+> 我们可能有关于每个猜想相对可信性的额外信息。这些信息可能来自于关于袋子里的东西是如何产生的知识。也可能来自以前的数据。无论来源如何，有一种方法可以将不同来源的信息结合起来，更新可信度，这将会很有帮助。幸运的是，有一个自然的解决方案： 只需将计数相乘即可。(p. 25)
 
-Here's how to make a version of the table in the middle of page 25.
+下面是第25页中间表格的制作方法。
 
 ```{r}
 # update t
@@ -483,7 +483,7 @@ t %>%
   valign(valign = "bottom", part = "header")
 ```
 
-We might update to reproduce the table a the top of page 26, like this.
+我们可以将第26页顶部的表格用以下代码生成。
 
 ```{r}
 # update t
@@ -506,17 +506,17 @@ t %>%
   valign(valign = "bottom", part = "header")
 ```
 
-To learn more about `dplyr::select()` and `dplyr::rename()`, check out Baert's exhaustive blog post, [*Data wrangling part 1: Basic to advanced ways to select columns*](https://suzan.rbind.io/2018/01/dplyr-tutorial-1/).
+要了解更多关于`dplyr::select()`和`dplyr::rename()`的信息，请查看Baert详尽的博文，[*数据处理第一部分：从基础到高级的列选择方法*](https://suzan.rbind.io/2018/01/dplyr-tutorial-1/)。
 
-#### Rethinking: Original ignorance.
+#### 反思： 最初的无知。
 
-> Which assumption should we use, when there is no previous information about the conjectures? The most common solution is to assign an equal number of ways that each conjecture could be correct, before seeing any data. This is sometimes known as the **principle of indifference**: When there is no reason to say that one conjecture is more plausible than another, weigh all of the conjectures equally. This book does not use nor endorse "ignorance" priors. As we'll see in later chapters, the structure of the model and the scientific context always provide information that allows us to do better than ignorance. (p. 26, **emphasis** in the original)
+> 当没有关于猜想的先前信息时，我们应该使用哪种假设？最常见的解决方法是在看到任何数据之前，为每个猜想的正确性分配相等数量的方法。这有时被称为**冷漠原则**： 当没有理由说一种猜想比另一种猜想更可信时，对所有猜想进行同等权衡。本书不使用也不认可 "无知 "先验。我们将在后面的章节中看到，模型的结构和科学背景总是提供信息，使我们能够做得比 "无知 "更好。(第26页，原文**强调**)
 
-### From counts to probability.
+### 从计数到概率。
 
-The opening sentences in this subsection are important: "It is helpful to think of this strategy as adhering to a principle of honest ignorance: *When we don't know what caused the data, potential causes that may produce the data in more ways are more plausible*" (p. 26, *emphasis* in the original).
+本小节的开头几句话非常重要："将这一策略视为坚持诚实无知的原则是有帮助的： *当我们不知道数据的起因时，可能以更多方式产生数据的潜在起因更可信*"（第26页，原文*强调*）。
 
-We can define our updated plausibility as
+我们可以将更新后的可信度定义为
 
 <center>
 
@@ -532,7 +532,7 @@ prior plausibility of ![](pictures/theta_02.png).
 
 </center>
 
-In other words,
+换言之、
 
 <center>
 
@@ -540,11 +540,11 @@ plausibility of $p$ after $D_\text{new}$ $\propto$ ways $p$ can produce $D_\text
 
 </center>
 
-But since we have to standardize the results to get them into a probability metric, the full equation is
+但由于我们必须将结果标准化才能将其转化为概率度量，因此完整方程为
 
 $$\text{plausibility of } p \text{ after } D_\text{new} = \frac{\text{ ways } p \text{ can produce } D_\text{new} \times \text{ prior plausibility of } p}{\text{sum of the products}}.$$
 
-You might make a version of the table in the middle of page 27 like this.
+您可以将第27页中间的表格做成这样。
 
 ```{r}
 # update t
@@ -565,7 +565,7 @@ t %>%
   italic(j = 2, part = "header")
 ```
 
-We just computed the plausibilities, but here's McElreath's **R** code 2.1.
+我们刚刚计算了可信度，下面是McElreath的**R**代码2.1。
 
 ```{r}
 ways <- c(0, 3, 8, 9, 0)
@@ -581,13 +581,13 @@ We might save our globe-tossing data in a tibble.
 (d <- tibble(toss = c("w", "l", "w", "w", "w", "l", "w", "l", "w")))
 ```
 
-### A data story.
+### 数据故事。
 
-> Bayesian data analysis usually means producing a story for how the data came to be. This story may be *descriptive*, specifying associations that can be used to predict outcomes, given observations. Or it may be *causal*, a theory of how some events produce other events. Typically, any story you intend to be causal may also be descriptive. But many descriptive stories are hard to interpret causally. But all data stories are complete, in the sense that they are sufficient for specifying an algorithm for simulating new data. (p. 28, *emphasis* in the original)
+>贝叶斯数据分析通常意味着产生一个数据如何产生的故事。这个故事可能是*描述性*的，具体说明可用于预测观察结果的关联。它也可能是*因果性的，是关于某些事件如何产生其他事件的理论。通常情况下，任何您希望成为因果关系的故事也可能是描述性的。但是，许多描述性故事很难从因果关系上进行解释。但所有的数据故事都是完整的，因为它们足以指定模拟新数据的算法。(第28页，原文*强调*)
 
-### Bayesian updating.
+###贝叶斯更新
 
-Here we'll add the cumulative number of trials, `n_trials`, and the cumulative number of successes, `n_successes` (i.e., `toss == "w"`), to the data.
+在这里，我们将把累积的试验次数`n_trials`和累积的成功次数`n_successes`（即`toss =="w"`）添加到数据中。
 
 ```{r}
 (
@@ -637,61 +637,61 @@ d %>%
   facet_wrap(~ strip, scales = "free_y")
 ```
 
-If it wasn't clear in the code, the dashed curves are normalized prior densities. The solid ones are normalized likelihoods. If you don't normalize (i.e., divide the density by the sum of the density), their respective heights don't match up with those in the text. Furthermore, it’s the normalization that makes them directly comparable.
+如果代码不清楚，虚线是归一化的先验密度。实线是归一化似然值。如果不进行归一化处理（即用密度除以密度之和），它们各自的高度将与文本中的高度不一致。此外，正是归一化使它们具有直接可比性。
 
-To learn more about `dplyr::group_by()` and its opposite `dplyr::ungroup()`, check out [*R4DS*, Chapter 5](https://r4ds.had.co.nz/transform.html). To learn about `tidyr::expand_grid()`, go [here](https://tidyr.tidyverse.org/reference/expand_grid.html).
+要了解更多关于`dplyr::group_by()`和与之相反的`dplyr::ungroup()`的信息，请查阅[*R4DS*, Chapter 5](https://r4ds.had.co.nz/transform.html)。要了解`tidyr::expand_grid()`，请访问[这里](https://tidyr.tidyverse.org/reference/expand_grid.html)。
 
-#### Rethinking: Sample size and reliable inference.
+#### 反思： 样本量和可靠推断。
 
-> It is common to hear that there is a minimum number of observations for a useful statistical estimate. For example, there is a widespread superstition that 30 observations are needed before one can use a Gaussian distribution. Why? In non-Bayesian statistical inference, procedures are often justified by the method's behavior at very large sample sizes, so-called asymptotic behavior. As a result, performance at small samples sizes is questionable.
+> 我们经常听到这样的说法：一个有用的统计估计需要最少的观测值。例如，人们普遍迷信在使用高斯分布之前需要 30 个观测值。为什么呢？在非贝叶斯统计推断中，通常通过方法在非常大样本量下的行为（即所谓的渐近行为）来证明其合理性。因此，在小样本量下的表现是值得怀疑的。
 >
-> In contrast, Bayesian estimates are valid for any sample size. This does not mean that more data isn't helpful--it certainly is. Rather, the estimates have a clear and valid interpretation, no matter the sample size. But the price for this power is dependency upon the initial plausibilities, the prior. If the prior is a bad one, then the resulting inference will be misleading. There's no free lunch, when it comes to learning about the world. (p. 31, *emphasis* in the original)
+> 相反，贝叶斯估计对任何样本量都有效。这并不意味着更多的数据没有帮助--当然有帮助。相反，无论样本大小如何，估计值都有清晰有效的解释。但这种能力的代价是依赖于初始似然性，即先验。如果先验值不好，那么推断结果就会产生误导。在了解世界的过程中，没有免费的午餐。(第31页，原文*强调*)
 
-### Evaluate.
+#### 评估。
 
-> The Bayesian model learns in a way that is demonstrably optimal, provided that it accurately describes the real, large world. This is to say that your Bayesian machine guarantees perfect inference within the small world. No other way of using the available information, beginning with the same state of information, could do better.
+> 只要贝叶斯模型能够准确地描述真实的大世界，那么它的学习方式显然是最优的。这就是说，你的贝叶斯机器保证了在小世界中的完美推理。从相同的信息状态开始，没有其他使用可用信息的方法可以做得更好。
 >
-> Don't get too excited about this logical virtue, however. The calculations may malfunction, so results always have to be checked. And if there are important differences between the model and reality, then there is no logical guarantee of large world performance. And even if the two worlds did match, any particular sample of data could still be misleading. (p. 31)
+> 然而，不要对这一逻辑优点过于兴奋。计算可能会出错，因此必须对结果进行检查。如果模型和现实之间存在重大差异，那么就无法从逻辑上保证大世界的性能。即使两个世界确实匹配，任何特定的数据样本仍然可能具有误导性。(p. 31)
 
-#### Rethinking: Deflationary statistics.
+#### 反思： 通货紧缩统计。
 
-> It may be that Bayesian inference is the best general purpose method of inference known. However, Bayesian inference is much less powerful than we'd like it to be. There is no approach to inference that provides universal guarantees. No branch of applied mathematics has unfettered access to reality, because math is not discovered, like the proton. Instead it is invented, like the shovel. (p. 32)
+> 贝叶斯推理可能是已知的最好的通用推理方法。然而，贝叶斯推理的功能远没有我们希望的那么强大。没有一种推理方法能够提供普遍的保证。应用数学的任何分支都无法不受限制地接触现实，因为数学不像质子那样是被发现的。相反，它是被发明出来的，就像铁锹一样。(p. 32)
 
-This stance brushes up against what is sometimes called *mathematical platonism*, which is a position I suspect is casually held among many scientists and laypersons, alike. For more on the topic, check out *Platonism in the philosophy of mathematics* [@linneboPlatonismPhilosophyMathematics2018].
+这种立场与有时被称为*数学柏拉图主义*的观点不谋而合，我怀疑许多科学家和普通人都持有这种立场。欲知更多详情，请查阅*数学哲学中的柏拉图主义*[@linneboPlatonismPhilosophyMathematics2018]。
 
-## Components of the model
+##模型的组成部分
 
-We can sum up the components of the model as three things:
+我们可以将模型的组成部分概括为三点：
 
-1. a likelihood function: "the number of ways each conjecture could produce an observation,"
-2. one or more parameters: "the accumulated number of ways each conjecture could produce the entire data," and 
-3. a prior: "the initial plausibility of each conjectured cause of the data" (p. 32).
+1. 似然函数： "每个猜想产生观察结果的方式的数量"；
+2. 一个或多个参数："每个猜想产生整个数据的累计方式数"；
+3. 先验： "每个猜想产生整个数据的累积方式"；3.先验值："每个数据的猜想原因的初始可信度"（第 32 页）。
 
-### Variables.
+### 变量。
 
-> Variables are just symbols that can take on different values. In a scientific context, variables include things we wish to infer, such as proportions and rates, as well as things we might observe, the data....
+> 变量是可以取不同值的符号。在科学语境中，变量包括我们希望推断的东西，如比例和比率，以及我们可能观察到的东西，即数据....。
 >
-> Unobserved variables are usually called **parameters**. (p. 32, **emphasis** in the original)
+> 未观察到的变量通常称为**参数**。(第32页，原文中**强调**)
 
-### Definitions.
+#### 定义。
 
-> Once we have the variables listed, we then have to define each of them. In defining each, we build a model that relates the variables to one another. Remember, the goal is to count all the ways the data could arise, given the assumptions. (p. 33)
+> 一旦我们列出了变量，我们就必须定义每一个变量。在定义每一个变量时，我们要建立一个将变量相互联系起来的模型。记住，我们的目标是计算出在假设条件下数据可能产生的所有方式。(p. 33)
 
-#### Observed variables.
+#### 观察变量。
 
-> So that we don't have to literally count, we can use a mathematical function that tells us the right plausibility. In conventional statistics, a distribution function assigned to an observed variable is usually called a **likelihood**. (p. 33, **emphasis** in the original)
+> 因此，我们可以使用数学函数来告诉我们正确的可信度。在传统统计学中，分配给观测变量的分布函数通常称为**似然**。(第33页，**强调**在原文中）
 
-If you let the count of water be $w$ and the count of land be $l$, then the binomial likelihood for the globe-tossing data may be expressed as
+如果水的数量为$w$，陆地的数量为$l$，那么折腾地球数据的二项似然值可以表示为
 
 $$\Pr (w, l| p) = \frac{(w + l)!}{w!l!} p^w (1 - p)^l.$$
 
-As McElreath wrote, we can read that as: "*The counts of 'water' W and 'land' L are distributed binomially, with probability* $p$ *of 'water' on each toss*. (p. 33, *emphasis* in the original). Given a probability of .5, we can use the `dbinom()` function to determine the likelihood of 6 out of 9 tosses coming out water.
+正如McElreath所写，我们可以将其理解为 "*'水'W和'陆地'L的计数是二项式分布的，每次掷出*'水'的概率* $p$。(第33页，原文中*强调*）。鉴于概率为0.5，我们可以使用`dbinom()`函数来确定9次掷骰子中6次出水的可能性。
 
 ```{r}
 dbinom(x = 6, size = 9, prob = .5)
 ```
 
-McElreath suggested we change the values of `prob`. Here is a way to do so over the parameter space, $[0, 1]$.
+McElreath建议我们改变`prob`的值。下面是在参数空间$[0, 1]$中改变值的方法。
 
 ```{r, fig.width = 3, fig.height = 2}
 tibble(prob = seq(from = 0, to = 1, by = .01)) %>% 
@@ -702,17 +702,17 @@ tibble(prob = seq(from = 0, to = 1, by = .01)) %>%
   theme(panel.grid = element_blank())
 ```
 
-##### Overthinking: Names and probability distributions.
+##### 过度思考： 名称和概率分布。
 
-> The "`d`" in `dbinom` stands for *density*. Functions named in this way almost always have corresponding partners that begin with "`r`" for random samples and that begin with "`p`" for cumulative probabilities. See for example the help `?dbinom`. (p. 34, *emphasis* in the original)
+> `dbinom` 中的"`d`"代表*密度*。以这种方式命名的函数几乎总是有对应的以"`r`"开头的随机样本函数和以"`p`"开头的累积概率函数. 参见帮助 `?dbinom`。(第34页，*强调*为原文)
 
-#### Unobserved variables.
+#### 非观察变量。
 
-> The distributions we assign to the observed variables typically have their own variables. In the binomial above, there is $pv, the probability of sampling water. Since $p$ is not observed, we usually call it a **parameter**. Even though we cannot observe $p$, we still have to define it. (p. 34, **emphasis** in the original)
+> 观察变量的分布一般都有自己的变量。在上面的二项式中，有$pv，即取样水的概率。由于$p$是不可观测的，我们通常称其为**参数。尽管我们无法观察到$p$，但仍需对其进行定义。(第34页，**强调**为原文)
 
-#### Overthinking: Prior as a probability distribution
+#### 过度思考： 作为概率分布的先验
 
-McElreath said that "for a uniform prior from $a$ to $b$, the probability of any point in the interval is $1 / (b - a)$" (p. 35). Let's try that out. To keep things simple, we'll hold $a$ constant while varying the values for $b$.
+McElreath说："对于从$a$到$b$的均匀先验，区间内任何一点的概率都是$1 / (b - a)$"（第35页）。让我们试试看。为了简单起见，我们将保持 $a$ 不变，同时改变 $b$ 的值。
 
 ```{r}
 tibble(a = 0,
@@ -752,15 +752,15 @@ tibble(parameter_space = seq(from = 0, to = 1, length.out = 50)) %>%
   theme(panel.grid = element_blank())
 ```
 
-#### Rethinking: Datum or parameter?
+#### 反思： 数据还是参数？
 
-> It is typical to conceive of data and parameters as completely different kinds of entities. Data are measured and known; parameters are unknown and must be estimated from data. Usefully, in the Bayesian framework the distinction between a datum and a parameter is not so fundamental. (p. 35)
+> 将数据和参数视为完全不同的实体是很典型的。数据是测量过的，是已知的；参数是未知的，必须根据数据进行估计。有用的是，在贝叶斯框架中，数据和参数之间的区别并不那么根本。(p. 35)
 
-For more in this topic, check out McElreath's lecture, [*Understanding Bayesian statistics without frequentist language*](https://youtu.be/yakg94HyWdE).
+关于这个主题的更多信息，请参阅McElreath的演讲[*不使用频率学派术语理解贝叶斯统计*](https://youtu.be/yakg94HyWdE)。
 
-### A model is born.
+### 一个模型诞生了。
 
-We can now describe our observed variables, $w$ and $l$, with parameters within the binomial likelihood, our shorthand notation for which is
+现在我们可以用二项似然中的参数来描述我们的观测变量$w$和$l$，我们的速记符号是
 
 $$w \sim \operatorname{Binomial}(n, p),$$
 
@@ -770,23 +770,23 @@ $$p \sim \operatorname{Uniform}(0, 1),$$
 
 which expresses the model assumption that the entire range of possible values for $p$, $[0, 1$, are equally plausible.
 
-## Making the model go
+## 建立模型
 
-> For every unique combination of data, likelihood, parameters, and prior, there is a unique posterior distribution. This distribution contains the relative plausibility of different parameter values, conditional on the data and model. The *posterior distribution* takes the form of the probability of the parameters, conditional on the data. (p. 36, *emphasis* added)
+> 对于数据、似然比、参数和先验的每一个独特组合，都有一个独特的后验分布。这个分布包含了不同参数值在数据和模型条件下的相对可信度。后验分布*的形式是以数据为条件的参数概率。(第36页，*强调*后加)
 
-### Bayes' theorem.
+###贝叶斯定理。
 
-We already know about our values for $w$, $l$, and, by logical necessity, $n$. Bayes' theorem will allow us to determine the plausibility of various values of $p$, given $w$ and $l$, which we can express formally as $\Pr(p | w, l)$. Building on some of the earlier equations on page 37, Bayes' theorem tells us that
+我们已经知道$w$、$l$以及逻辑上必然的$n$的值。贝叶斯定理将允许我们在给定$w$和$l$的情况下确定$p$的各种值的可信度，我们可以将其正式表示为$\Pr(p | w, l)$。在第37页前面的一些方程的基础上，贝叶斯定理告诉我们
 
 $$\Pr(p | w, l) = \frac{\Pr(w, l | p) \Pr(p )}{\Pr(w, l)}.$$
 
-> And this is Bayes' theorem. It says that the probability of any particular value of $p$, considering the data, is equal to the product of the relative plausibility of the data, conditional on $p$, and the prior plausibility of $p$, divided by this thing $\Pr(W, L)$, which I’ll call the *average probability of the data*. (p. 37, *emphasis* in the original)
+> 这就是贝叶斯定理。它说，考虑到数据，$p$的任何特定值的概率等于以$p$为条件的数据的相对可信度与$p$的先验可信度的乘积，再除以$\Pr(W, L)$，我称之为数据的*平均概率。(第37页，原文*强调*)
 
-We can express this in words as
+我们可以将其表达为
 
 $$\text{Posterior} = \frac{\text{Probability of the data} \times \text{Prior}}{\text{Average probability of the data}}.$$
 
-The average probability of the data is often called the "evidence" or the "average likelihood" and we'll get a sense of what that means as we go along. "The key lesson is that the posterior is proportional to the product of the prior and the probability of the data" (p. 37). Figure 2.6 will help us see what this means. Here are the preparatory steps for the data.
+数据的平均概率通常被称作 "证据 "或 "平均似然"，我们将逐渐了解其含义。"关键的一课是后验与先验和数据概率的乘积成正比"（第 37 页）。图 2.6 将帮助我们理解这一点。以下是数据的准备步骤。
 
 ```{r}
 sequence_length <- 1e3
@@ -809,7 +809,7 @@ d <-
 
 To learn more about `dplyr::arrange()`, check out [*R4DS*, Chapter 5.3](https://r4ds.had.co.nz/transform.html#arrange-rows-with-arrange).
 
-In order to avoid unnecessary facet labels for the rows, it was easier to just make each column of the plot separately. We can then use the elegant and powerful syntax from [Thomas Lin Pedersen](https://www.data-imaginist.com/)'s [-@R-patchwork] [**patchwork** package](https://patchwork.data-imaginist.com/) to combine them.
+为了避免对行进行不必要的分面标注，我们只需分别制作每一列的曲线图。然后，我们可以使用[Thomas Lin Pedersen](https://www.data-imaginist.com/)的[-@R-patchwork][**patchwork**包](https://patchwork.data-imaginist.com/)中优雅而强大的语法将它们组合起来。
 
 ```{r, fig.width = 6, fig.height = 5, warning = F, message = F}
 p1 <-
@@ -867,13 +867,13 @@ Also, to learn all about `dplyr::filter()`, check out Baert's [*Data wrangling p
 
 `r emo::ji("warning")` In this translation of McElreath's text, we will get a little practice with grid approximation and the quadratic approximation. But since our aim is to practice with **brms**, we'll jump rather quickly into MCMC. This will be awkward at times because it will force us to contend with technical issues in earlier problems in the text than McElreath originally did. I'll do what I can to bridge the pedagogical gaps.
 
-### Grid approximation.
+### 网格近似。
 
-Continuing on with our globe-tossing example,
+继续我们的折腾地球的例子、
 
-> at any particular value of a parameter, $p'$ , it's a simple matter to compute the posterior probability: just multiply the prior probability of $p'$ by the likelihood at $p'$. Repeating this procedure for each value in the grid generates an approximate picture of the exact posterior distribution. This procedure is called **grid approximation**. (pp. 39--40, **emphasis** in the original)
+> 在任何特定的参数值$p'$下, 计算后验概率是很简单的: 只需将$p'$的先验概率乘以$p'$下的可能性. 对网格中的每个值重复这一过程，就可以得到精确后验分布的近似值。这个过程被称为**网格近似**。(第39-40页，原文**强调**)
 
-We just employed grid approximation over the last figure. To get nice smooth lines, we computed the posterior over 1,000 evenly-spaced points on the probability space. Here we'll prepare for Figure 2.7 with 20.
+我们刚刚在最后一张图中使用了网格逼近法。为了得到平滑的线条，我们计算了概率空间上1000个均匀分布点的后验。这里我们将为图 2.7 中的 20.
 
 ```{r}
 (
@@ -958,13 +958,13 @@ tibble(n_points = c(5, 20)) %>%
   facet_grid(n_points ~ priors, scales = "free")
 ```
 
-### Quadratic approximation.
+#### 二次近似
 
-> Under quite general conditions, the region near the peak of the posterior distribution will be nearly Gaussian--or "normal"--in shape. This means the posterior distribution can be usefully approximated by a Gaussian distribution. A Gaussian distribution is convenient, because it can be completely described by only two numbers: the location of its center (mean) and its spread (variance).
+> 在一般情况下，后验分布峰值附近的区域近似于高斯分布或 "正态分布"。这意味着后验分布可以用高斯分布来近似。高斯分布很方便，因为它可以完全用两个数字来描述：它的中心位置（均值）和扩散（方差）。
 >
-> A Gaussian approximation is called "*quadratic approximation*" because the logarithm of a Gaussian distribution forms a parabola. And a parabola is a quadratic function. So this approximation essentially represents any log-posterior with a parabola. (p. 42, *emphasis* added)
+> 高斯近似之所以被称为 "*二次近似*"，是因为高斯分布的对数形成了抛物线。而抛物线是二次函数。因此，这种近似方法基本上是用抛物线来表示任何对数前值。(第42页，*着重号*为作者所加）
 
-Though McElreath will use the quadratic approximation for the first half of the text, we won't use it much past this chapter. Here, though, we'll apply the quadratic approximation to the globe tossing data with the `rethinking::quap()` function.
+虽然McElreath在前半部分使用了二次函数近似值，但在本章之后我们就不会再使用它了。在这里，我们将使用`rethinking::quap()`函数对抛球数据进行二次逼近。
 
 ```{r, warning = F, message = F}
 library(rethinking)
@@ -1034,19 +1034,19 @@ tibble(w = c(6, 12, 24),
   facet_wrap(~ n, scales = "free")
 ```
 
-> This phenomenon, where the quadratic approximation improves with the amount of data, is very common. It's one of the reasons that so many classical statistical procedures are nervous about small samples: Those procedures use quadratic (or other) approximations that are only known to be safe with infinite data. Often, these approximations are useful with less than infinite data, obviously. But the rate of improvement as sample size increases varies greatly depending upon the details. In some models, the quadratic approximation can remain terrible even with thousands of samples. (p. 44)
+> 这种现象非常普遍，即二次近似值随着数据量的增加而提高。这也是许多经典统计程序对小样本感到紧张的原因之一： 这些统计过程使用的二次近似（或其他近似）只有在数据量为无限时才是安全的。通常情况下，这些近似值对于小于无限的数据显然是有用的。但是，随着样本量的增加，其改进率会因具体情况的不同而有很大差异。在某些模型中，即使有成千上万的样本，二次近似仍然很糟糕。(p. 44)
 
-#### Rethinking: Maximum likelihood estimation.
+#### 反思： 最大似然估计
 
-> The quadratic approximation, either with a uniform prior or with a lot of data, is often equivalent to a **maximum likelihood estimate** (MLE) and its **standard error**. The MLE is a very common non-Bayesian parameter estimate. This correspondence between a Bayesian approximation and a common non-Bayesian estimator is both a blessing and a curse. It is a blessing, because it allows us to re-interpret a wide range of published non-Bayesian model fits in Bayesian terms. It is a curse, because maximum likelihood estimates have some curious drawbacks, and the quadratic approximation can share them. (p. 44, **emphasis**, in the original)
+> 在均匀先验或大量数据的情况下，二次近似通常等价于**最大似然估计** (MLE)及其**标准误差**。MLE是一种非常常见的非贝叶斯参数估计。贝叶斯近似值与常见的非贝叶斯估计值之间的这种对应关系是福也是祸。说它是福，是因为它允许我们用贝叶斯方法重新解释各种已发表的非贝叶斯模型拟合。说它是祸，是因为最大似然估计有一些奇怪的缺点，而二次近似可以分担这些缺点。(第44页，**强调**，原文如此)
 
-Textbooks highlighting the maximum likelihood method for the generalized linear model abound. If this is new to you and you'd like to learn more, perhaps check out Roback and Legler's [-@roback2021beyond] [*Beyond multiple linear regression: Applied generalized linear models and multilevel models in R*](https://bookdown.org/roback/bookdown-BeyondMLR/), Agresti's [-@agrestiFoundationsLinearGeneralized2015] [*Foundations of linear and generalized linear models*](https://www.wiley.com/en-us/Foundations+of+Linear+and+Generalized+Linear+Models-p-9781118730034) or Dunn and Smyth's [-@dunn2018generalized] [*Generalized linear models with examples in R*](https://link.springer.com/book/10.1007/978-1-4419-0118-7).
+强调广义线性模型最大似然法的教科书比比皆是。如果这对您来说是新的，您想了解更多，也许可以参考Roback和Legler的[-@roback2021beyond][*超越多元线性回归： https://bookdown.org/roback/bookdown-BeyondMLR/), Agresti的 [-@agrestiFoundationsLinearGeneralized2015] [*Foundations of linear and generalized linear models*](https://www.wiley.com/en-us/Foundations+of+Linear+and+Generalized+Linear+Models-p-9781118730034) 或者Dunn和Smyth的 [-@dunn2018generalized] [*Generalized linear models with examples in R*](https://link.springer.com/book/10.1007/978-1-4419-0118-7).
 
-### Markov chain Monte Carlo.
+###马尔科夫链蒙特卡罗。
 
-> The most popular [alternative to grid approximation and the quadratic approximation] is **Markov chain Monte Carlo** (MCMC), which is a family of conditioning engines capable of handling highly complex models. It is fair to say that MCMC is largely responsible for the insurgence of Bayesian data analysis that began in the 1990s. While MCMC is older than the 1990s, affordable computer power is not, so we must also thank the engineers. ~~Much later in the book (Chapter 9)~~, you'll meet simple and precise examples of MCMC model fitting, aimed at helping you understand the technique. (p. 45, **emphasis** in the original)
+> 最流行的[网格逼近和二次逼近的替代方法]是**马尔科夫链蒙特卡罗**（MCMC），这是一个能够处理高度复杂模型的条件引擎系列。可以说，MCMC是20世纪90年代贝叶斯数据分析兴起的主要原因。虽然MCMC的历史比20世纪90年代还要悠久，但可负担得起的计算机能力却并非如此，因此我们还必须感谢工程师们。~~在本书的稍后部分（第9章）~~~，您将看到MCMC模型拟合的简单而精确的例子，旨在帮助您理解这项技术。(第45页，原文**强调**)
 
-The **brms** package uses a version of MCMC to fit Bayesian models. Since one of the main goals of this project is to highlight **brms**, we may as well fit a model. This seems like an appropriately named subsection to do so. First we'll have to load the package.
+**brms**包使用MCMC的一个版本来拟合贝叶斯模型。由于本项目的主要目标之一是突出**brms**，我们不妨拟合一个模型。这似乎是一个合适的子节。首先，我们需要加载软件包。
 
 ```{r, warning = F, message = F}
 library(brms)
@@ -1066,15 +1066,15 @@ b2.1 <-
       file = "fits/b02.01")
 ```
 
-The model output from **brms** looks like so.
+从**brms**输出的模型如下所示。
 
 ```{r}
 print(b2.1)
 ```
 
-There's a lot going on in that output, which we'll start to clarify in [Chapter 4][Geocentric Models]. For now, focus on the 'Intercept' line. As we'll also learn in Chapter 4, the intercept of a typical regression model with no predictors is the same as its mean. In the special case of a model using the binomial likelihood, the mean is the probability of a 1 in a given trial, $\theta$.
+我们将在[第 4 章][地心模型]中对该输出结果进行说明。现在，请关注 "截距 "线。我们将在第 4 章中学习到，没有预测因子的典型回归模型的截距与平均值相同。在使用二项似然法的模型的特殊情况下，均值是给定试验中出现1的概率，$\theta$。
  
-Also, with **brms**, there are many ways to summarize the results of a model. The `brms::posterior_summary()` function is an analogue to `rethinking::precis()`. We will, however, need to use `round()` to reduce the output to a reasonable number of decimal places.
+另外，使用**brms**，有很多方法来总结模型的结果。`brms::posterior_summary()` 函数类似于`rethinking::precis()`。然而，我们需要使用`round()`将输出结果减少到合理的小数位数。
 
 ```{r}
 posterior_summary(b2.1) %>% 
@@ -1094,9 +1094,9 @@ as_draws_df(b2.1) %>%
   facet_wrap(~ n)
 ```
 
-If you're still confused, cool. This is just a preview. We'll start walking through fitting models with **brms** in [Chapter 4][Geocentric models] and we'll learn a lot about regression with the binomial likelihood in [Chapter 11][God Spiked the Integers].
+如果您仍然感到困惑，没关系。这只是一个预览。在[第4章][地心模型]中, 我们将开始用**brms**拟合模型, 在[第11章][God Spiked the Integers]中, 我们将学习很多关于二项似然回归的知识.
 
-## Session info {-}
+## Session信息 {-}
 
 ```{r}
 sessionInfo()
